@@ -39,7 +39,7 @@ def run(rank, n_gpus, args):
                                                                 rank=rank,
                                                                 shuffle=True)
     collate_fn = Collate()
-    d_loader = DataLoader(dset, num_workers=16, shuffle=False,
+    d_loader = DataLoader(dset, num_workers=10, shuffle=False,
                             batch_size=1, pin_memory=True,
                             drop_last=False, collate_fn=collate_fn, sampler=d_sampler)
 
@@ -114,7 +114,7 @@ def make_filelist_libritts(args):
 class DLoader():
     def __init__(self, args):
         if args.save_audio:
-            self.wavs = glob.glob(os.path.join(args.input_dir, 'wav48_silence_trimmed/**/*_mic1.flac'), recursive=True)
+            self.wavs = glob.glob(os.path.join(args.input_dir, 'wav48/**/*.wav'), recursive=True)
         else:
             self.wavs = glob.glob(os.path.join(args.input_dir, '**/*.wav'), recursive=True)
         self.args = args
@@ -126,7 +126,7 @@ class DLoader():
                                         top_db=20,
                                         frame_length=2048,
                                         hop_length=300)
-        audio = librosa.resample(audio, sr, self.args.samplerate)
+        audio = librosa.resample(audio, orig_sr=sr, target_sr=self.args.samplerate)
         audio = audio / np.max(np.abs(audio)) * 0.95
         basename = os.path.splitext(os.path.basename(self.wavs[index]))[0].replace('_mic1','')
         spk_name = basename.split('_')[0]

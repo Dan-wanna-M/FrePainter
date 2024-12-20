@@ -37,7 +37,7 @@ def run(rank, n_gpus, args):
                                                                 rank=rank,
                                                                 shuffle=True)
     collate_fn = Collate()
-    d_loader = DataLoader(dset, num_workers=16, shuffle=False,
+    d_loader = DataLoader(dset, num_workers=10, shuffle=False,
                             batch_size=1, pin_memory=True,
                             drop_last=False, collate_fn=collate_fn, sampler=d_sampler)
 
@@ -47,7 +47,7 @@ def run(rank, n_gpus, args):
 
 class DLoader():
     def __init__(self, args):
-        wavs = glob.glob(os.path.join(args.input_dir, '**/*_mic1.flac'), recursive=True)
+        wavs = glob.glob(os.path.join(args.input_dir, '**/*.wav'), recursive=True)
         spk_list = sorted(list(set([os.path.basename(wav).split('_')[0] for wav in wavs])))[-8:]
 
         self.wavs = []
@@ -98,8 +98,8 @@ def prep(rank, d_loader, args, target_sr):
 
                 sos = cheby1(8, 0.05, hi, btype='lowpass', output='sos')
                 d_audio = sosfiltfilt(sos, audio)
-                d_audio = librosa.resample(d_audio, orig_sr, sr, res_type='kaiser_best')
-                d_audio = librosa.resample(d_audio, sr, target_sr, res_type='kaiser_best')
+                d_audio = librosa.resample(d_audio, orig_sr=orig_sr, target_sr=sr, res_type='kaiser_best')
+                d_audio = librosa.resample(d_audio, orig_sr=sr, target_sr=target_sr, res_type='kaiser_best')
                 d_audio = d_audio / np.max(np.abs(d_audio)) * 0.95
 
                 if len(d_audio) * 2 > len(audio):
