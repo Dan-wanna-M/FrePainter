@@ -27,6 +27,6 @@ class PostProcessing:
         spec_pred[:, :cr, ...] = spec_src[:, :cr, ...] / energy_ratio
 
         audio = self.istft(spec_pred, length=length)
-        audio = audio / torch.abs(audio).max() * 0.95
+        # audio = audio / torch.abs(audio).max() * 0.95 this does not have any effect on validation
 
         return audio

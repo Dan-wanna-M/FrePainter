@@ -155,7 +155,6 @@ class MultiPeriodDiscriminator(torch.nn.Module):
 
         return y_d_rs, y_d_gs, fmap_rs, fmap_gs
 
-
 class SynthesizerTrn(nn.Module):
   """
   Synthesizer for Training
@@ -257,9 +256,8 @@ class SynthesizerTrn(nn.Module):
     o = self.dec(z_slice, g=g)
     return o, ids_slice
 
-  def infer(self, x, x_lengths, g=None, max_len=None):
+  def infer(self, x, x_lengths=None, g=None, max_len=None):
     z = self.encoding(x, 0)
-
     z = self.unpatchify(z).squeeze(1).transpose(1, 2)
     o = self.dec(z, g=g)
 

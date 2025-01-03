@@ -6,6 +6,9 @@ from tqdm import tqdm
 
 def compute_log_spec_dist(ground_truth, generated):
     assert ground_truth.shape == generated.shape, "Shape mismatch: {} and {}".format(ground_truth.shape, generated.shape)
+    # loudness normalization
+    ground_truth = ground_truth / np.abs(ground_truth).max()
+    generated = generated / np.abs(generated).max()
     lsd = librosa.stft(ground_truth, n_fft=2048, hop_length=300, win_length=1200)
     lsd_generated = librosa.stft(generated, n_fft=2048, hop_length=300, win_length=1200)
     lsd = np.swapaxes(lsd, -2, -1)
