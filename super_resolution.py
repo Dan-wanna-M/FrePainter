@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 import utils
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 torch.set_float32_matmul_precision('high')
+# torch.backends.cudnn.benchmark = True
 # Mel spectrogram constants
 N_FFT = 2048
 NUM_MELS = 128
@@ -214,7 +215,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--model', type=str, default='logs/finetune/pt_rd_80_ft_ub_mrv2/best.pth')
     parser.add_argument('-n', '--num_workers', type=int, default=16)
     parser.add_argument('-r', '--ranks', type=int, nargs='+', default=[0])
-    parser.add_argument('-b', '--batch_size', type=int, default=64)
+    parser.add_argument('-b', '--batch_size', type=int, default=96)
     parser.add_argument('-c', '--config', type=str, default='logs/finetune/pt_rd_80_ft_ub_mrv2/config.json')
     args = parser.parse_args()
     hps = utils.HParams(**json.load(open(args.config)))

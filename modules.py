@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
-
+from flash_attn import flash_attn_qkvpacked_func
 from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
 from torch.nn.utils import weight_norm, remove_weight_norm
 
@@ -94,15 +94,8 @@ class Attention(nn.Module):
 
     def forward(self, x):
         b, n, _, h = *x.shape, self.heads
-        qkv = self.to_qkv(x).chunk(3, dim = -1)
-        q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), qkv)
-
-        dots = einsum('b h i d, b h j d -> b h i j', q, k) * self.scale
-
-        attn = dots.softmax(dim=-1)
-
-        out = einsum('b h i j, b h j d -> b h i d', attn, v)
-        out = rearrange(out, 'b h n d -> b n (h d)')
+        qkv = self.to_qkv(x).reshape(b, n, 3, h, -1)
+        out =flash_attn_qkvpacked_func(qkv).reshape(b, n, -1)
         out =  self.to_out(out)
         return out
 
