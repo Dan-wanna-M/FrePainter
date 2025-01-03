@@ -14,7 +14,7 @@ class PostProcessing:
                 return energy.size(0) - i
         return 0
     def post_processing(self, pred, src, length):
-        assert len(pred.shape) == 2 and len(src.shape) == 2
+        assert len(pred.shape) == 2 and len(src.shape) == 2, f"pred: {pred.shape}, src: {src.shape}"
         spec_pred = self.stft(pred)
         spec_src  = self.stft(src)
 

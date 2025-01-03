@@ -520,10 +520,7 @@ class InferenceTestCollate():
     def __call__(self, batch):
         mel, audio, names = batch[0]
         mel_segs = list(mel.split(self.max_len, dim=-1))
-
         audio = audio / torch.abs(audio).max() * 0.95
-
-
         mel_padded = torch.zeros(len(mel_segs), mel.size(0), self.max_len)
         for i, seg in enumerate(mel_segs):
             mel_padded[i, :, :seg.size(-1)] = seg

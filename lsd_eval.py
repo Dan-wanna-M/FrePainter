@@ -19,7 +19,7 @@ def compute_lsd_all(input_dir, output_dir):
     input_files = glob.glob(os.path.join(input_dir, '*.wav'))
     mean_lsd = 0
     for input_file in tqdm(input_files):
-        output_file = os.path.join(output_dir, os.path.basename(input_file))
+        output_file = os.path.join(output_dir, os.path.basename(input_file)).replace(".wav", ".flac")
         ground_truth, g_sr = librosa.load(input_file, sr=None)
         generated, ge_sr = librosa.load(output_file, sr=None)
         assert g_sr == ge_sr, "Sampling rate mismatch: {} and {}".format(g_sr, ge_sr)
@@ -30,4 +30,4 @@ def compute_lsd_all(input_dir, output_dir):
 
 
 if __name__ == "__main__":
-    compute_lsd_all("dataset/OOD_test/gt_wavs", "logs/results/pt_rd_80_ft_ub_mrv2_best/24000")
+    compute_lsd_all("dataset/testset/gt_wavs/", "testset_24000")
