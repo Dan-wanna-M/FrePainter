@@ -1,11 +1,4 @@
-Cython
-librosa
-matplotlib
-numpy
-scipy
-tensorboard
-torch
-torchaudio
-torchvision
-Unidecode
-einops
+torch>=2,<3
+torchaudio>=2,<3
+einops>=0.8,<0.9
+# also need flash-attn

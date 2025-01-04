@@ -186,7 +186,6 @@ def super_resolution_audios(input_dir: str, output_dir: str,
 
 def super_resolution_audio(output_dir: str, format: str):
     result = []
-    time_duration = 0
     with torch.no_grad():
         with torch.amp.autocast(device_type='cuda', dtype=torch.float16):
             for batch in tqdm(dataloader):
@@ -198,16 +197,14 @@ def super_resolution_audio(output_dir: str, format: str):
                 y_hat = generator.infer(mel_padded).squeeze(1)
                 patch_counter = 0
                 for input_file, audio_lengths, src_audio in zip(input_files, audios_lengths, src_audios):
-                    time_duration += src_audio.size(-1) / TARGET_SAMPLING_RATE
                     y_hat_total = y_hat[patch_counter:patch_counter+audio_lengths.size(0), :].reshape(1, -1)
                     patch_counter += audio_lengths.size(0)
                     y_hat_total = y_hat_total[:, :audio_lengths.sum().long()]
-                    # y_hat_total = y_hat_total / torch.abs(y_hat_total).max() * 0.95, enablingthis make validation worse
+                    # y_hat_total = y_hat_total / torch.abs(y_hat_total).max() * 0.95, enabling this make validation worse
                     y_hat_pp = pp.post_processing(y_hat_total, src_audio, length=src_audio.size(-1))
                     result.append((input_file, y_hat_pp))
-    print(f"Time duration processed: {time_duration}")
     for input_file, y_hat_pp in tqdm(result):
-        torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp.cpu(), 48000)
+        torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp.cpu(), TARGET_SAMPLING_RATE)
     return None
 
 

@@ -1,4 +1,11 @@
 # Fre-Painter: A Pytorch Implementation
+This is a forked version of Fre-Painter codebase that adds more features for better inference:
+
+1. Batch processing
+2. Flash attention
+3. No more librosa
+4. Minor modifications on postprocessing that are proven to slightly improve LSD score
+
 ## Pre-requisites
 ### 1. Clone our repository
 ```
