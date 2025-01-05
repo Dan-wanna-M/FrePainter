@@ -3,8 +3,8 @@ import torch
 
 class PostProcessing:
     def __init__(self, rank):
-        self.stft = Spectrogram(2048, hop_length=512, win_length=2048, power=None, pad_mode='constant').cuda(rank)
-        self.istft = InverseSpectrogram(2048, hop_length=512, win_length=2048, pad_mode='constant').cuda(rank)
+        self.stft = Spectrogram(2048, hop_length=512, win_length=2048, power=None, pad_mode='reflect').cuda(rank)
+        self.istft = InverseSpectrogram(2048, hop_length=512, win_length=2048, pad_mode='reflect').cuda(rank)
 
     def get_cutoff_index(self, spec, threshold=0.985):
         energy = torch.cumsum(torch.sum(spec.squeeze().abs(), dim=-1), dim=0)

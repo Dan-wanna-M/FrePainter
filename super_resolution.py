@@ -3,7 +3,7 @@ from functools import partial
 import glob
 import json
 import os
-import time
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 import torch.multiprocessing as mp
 import torchaudio
 from tqdm import tqdm
@@ -15,7 +15,7 @@ from post_processing import PostProcessing
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import utils
-os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+
 torch.set_float32_matmul_precision('high')
 # torch.backends.cudnn.benchmark = True
 # Mel spectrogram constants
@@ -202,9 +202,9 @@ def super_resolution_audio(output_dir: str, format: str):
                     y_hat_total = y_hat_total[:, :audio_lengths.sum().long()]
                     # y_hat_total = y_hat_total / torch.abs(y_hat_total).max() * 0.95, enabling this make validation worse
                     y_hat_pp = pp.post_processing(y_hat_total, src_audio, length=src_audio.size(-1))
-                    result.append((input_file, y_hat_pp))
+                    result.append((input_file, y_hat_pp.cpu()))
     for input_file, y_hat_pp in tqdm(result):
-        torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp.cpu(), TARGET_SAMPLING_RATE)
+        torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp, TARGET_SAMPLING_RATE)
     return None
 
 
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     parser.add_argument('-m', '--model', type=str, default='logs/finetune/pt_rd_80_ft_ub_mrv2/best.pth')
     parser.add_argument('-n', '--num_workers', type=int, default=16)
     parser.add_argument('-r', '--ranks', type=int, nargs='+', default=[0])
-    parser.add_argument('-b', '--batch_size', type=int, default=96)
+    parser.add_argument('-b', '--batch_size', type=int, default=32)
     parser.add_argument('-c', '--config', type=str, default='logs/finetune/pt_rd_80_ft_ub_mrv2/config.json')
     args = parser.parse_args()
     hps = utils.HParams(**json.load(open(args.config)))
