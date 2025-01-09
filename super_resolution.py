@@ -185,7 +185,7 @@ def super_resolution_audios(input_dir: str, output_dir: str,
 
 
 def super_resolution_audio(output_dir: str, format: str):
-    result = []
+    total_time_duration = 0
     with torch.no_grad():
         with torch.amp.autocast(device_type='cuda', dtype=torch.float16):
             for batch in tqdm(dataloader):
@@ -202,9 +202,9 @@ def super_resolution_audio(output_dir: str, format: str):
                     y_hat_total = y_hat_total[:, :audio_lengths.sum().long()]
                     # y_hat_total = y_hat_total / torch.abs(y_hat_total).max() * 0.95, enabling this make validation worse
                     y_hat_pp = pp.post_processing(y_hat_total, src_audio, length=src_audio.size(-1))
-                    result.append((input_file, y_hat_pp.cpu()))
-    for input_file, y_hat_pp in tqdm(result):
-        torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp, TARGET_SAMPLING_RATE)
+                    torchaudio.save(os.path.join(output_dir, os.path.basename(input_file).replace(format, 'flac')), y_hat_pp.cpu(), TARGET_SAMPLING_RATE)
+                    total_time_duration += y_hat_pp.size(-1) / TARGET_SAMPLING_RATE        
+    print(f"Total time duration: {total_time_duration/3600} hours")
     return None
 
 
